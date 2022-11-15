@@ -1,0 +1,5 @@
+# dev requirements
+types-beautifulsoup4
+pyinstaller
+autopep8
+python-dotenv

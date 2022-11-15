@@ -1,0 +1,4 @@
+colorama
+requests
+notify-py
+beautifulsoup4
