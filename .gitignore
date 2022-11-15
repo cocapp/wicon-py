@@ -134,3 +134,4 @@ exp.*
 # Local data
 data/
 .env
+.idea/
