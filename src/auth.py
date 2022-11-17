@@ -1,13 +1,22 @@
+"""
+communicate with the server
+- defines login/logout headers and URLs
+- sends the login/logout requests
+- parses the server responses
+"""
+
 from http.client import OK
 from logging import getLogger
 
+from bs4 import BeautifulSoup
 from requests import get, post
 
-from bs4 import BeautifulSoup
-
+# URLs for the service
 LOGIN_URL = "http://phc.prontonetworks.com/cgi-bin/authlogin"
 LOGOUT_URL = "http://phc.prontonetworks.com/cgi-bin/authlogout"
 
+# HTTP headers for logging in
+# TODO see if any headers can be removed
 LOGIN_HEADERS = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
     'Accept-Encoding': 'gzip, deflate',
@@ -24,6 +33,8 @@ LOGIN_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'
 }
 
+# HTTP headers for logging out
+# TODO see if any headers can be removed
 LOGOUT_HEADERS = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
     'Accept-Encoding': 'gzip, deflate',
@@ -34,19 +45,36 @@ LOGOUT_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'
 }
 
+# HTML parser to understand server response
 HTML_PARSER = 'html.parser'
 
-
+# create a logger for this module
 logger = getLogger(__name__)
 
 def parse_login_response(html: bytes) -> str:
+    """parse login HTML response
+    - parse using BeautifulSoup
+    - read the contents to determine request outcome
+    - return a custom string containing status information
+    - if page has unexpected/invalid content, raise an exception
+    
+    steps:
+    1. check page title element
+    2. if page title element exists, check its value
+    3. if page title element is expected/valid, return status
+    4. if page title element was ambiguous, check error element
+    5. if page title element didn't exist, check page contents"""
+
     soup = BeautifulSoup(html, HTML_PARSER)
     logger.debug(soup.find('b'))
+
+    # if title is not none, proceed and store its value to `title`
     if title := soup.find('title'):
 
         if title.text.strip().lower() == "successful pronto authentication":
             return 'login-success'
 
+        # check error elements if we get back a generic title
         elif title.text.strip().lower() == "volswifi authentication":
             error = soup.find('td', {'class': "errorText10"}).text.strip().lower()  # type: ignore
 
@@ -59,19 +87,33 @@ def parse_login_response(html: bytes) -> str:
                 return standard_errors[error]
 
             else:
+                logger.warning(html)
                 raise ValueError(f"Got title {title} but invalid error {error}.")
 
         else:
+            logger.warning(html)
             raise ValueError(f"Invalid title {title}.")
 
     elif soup.find('b') and soup.find('b').text.strip().lower() == "you are already logged in":  # type: ignore
         return 'session-exists'
 
     else:
+        logger.warning(html)
         raise ValueError(f"Invalid page {soup}.")
 
 
 def parse_logout_response(html: bytes) -> str:
+    """parse logout HTML response
+    - parse using BeautifulSoup
+    - read the contents to determine request outcome
+    - return a custom string containing status information
+    - if page has unexpected/invalid content, raise an exception
+    
+    steps:
+    1. check page title element
+    2. if page title element exists, check its value
+    3. if page title element is expected/valid, return status"""
+
     soup = BeautifulSoup(html, HTML_PARSER)
 
     if title := soup.find('title'):
@@ -84,13 +126,20 @@ def parse_logout_response(html: bytes) -> str:
             return 'logout-success'
 
         else:
+            logger.warning(html)
             raise ValueError(f"Invalid title {title}.")
             
     else:
+        logger.warning(html)
         raise ValueError(f"Invalid page {soup}.")
 
 
 def login(credentials: dict[str, str]) -> str:
+    """main login HTTP request
+    - create the request
+    - send the request
+    - return the response"""
+
     login_payload = {
         'serviceName': 'ProntoAuthentication',
         'Submit22': 'Login',
@@ -104,6 +153,7 @@ def login(credentials: dict[str, str]) -> str:
         headers=LOGIN_HEADERS
     )
 
+    # analyse the HTTP status code and (if available) response
     if int(login_request.status_code == OK):
         logger.info("Login request acknowledged.")
 
@@ -115,15 +165,22 @@ def login(credentials: dict[str, str]) -> str:
         return parsed_response_status
 
     else:
+        logger.warning(login_request.content)
         raise ConnectionError(f"The server returned status code {login_request.status_code}.")
 
 
 def logout() -> str:
+    """main login HTTP request
+    - create the request
+    - send the request
+    - return the response"""
+
     logout_request = get(
         url=LOGOUT_URL,
         headers=LOGOUT_HEADERS
     )
 
+    # analyse the HTTP status code and (if available) response
     if int(logout_request.status_code == OK):
         logger.info("Logout request acknowledged.")
 
@@ -133,4 +190,5 @@ def logout() -> str:
         return parsed_response_status
 
     else:
+        logger.warning(logout_request.content)
         raise ConnectionError(f"The server returned status code {logout_request.status_code}.")

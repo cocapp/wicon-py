@@ -3,7 +3,6 @@ from argparse import Namespace as ArgNamespace
 from getpass import getpass
 from logging import DEBUG, INFO, FileHandler, Formatter, getLogger
 from os import environ
-
 from pathlib import Path
 from sys import argv
 
@@ -13,7 +12,12 @@ from notifypy import Notify
 import src.auth
 import src.credentials
 
+# set the logger level
 LOGGER_LEVEL = INFO
+
+# set a scheme for the notifying the user based on custom status messages
+# in general, the user is notified only of failures or other abnormal events
+# the user is not notified if they are expected to be active on a command line
 USER_NOTIFICATION_SCHEME = {
     'login-success': {
         'notification': False,
@@ -66,6 +70,10 @@ USER_NOTIFICATION_SCHEME = {
 
 
 def init(__name__):
+    """initialize objects for later use
+    - set file path objects for credentials and logging
+    - configure the loggers
+    """
     if (folder_name := environ.get('DATA')):
         FOLDER_PATH = Path(folder_name)
 
@@ -151,6 +159,11 @@ def define_and_read_args(arguments: list[str]) -> ArgNamespace:
 
 
 def connect(parsed_arguments: ArgNamespace) -> str:
+    """log in to the Wi-Fi network
+    - get credentials and handle relevant CLI arguments
+    - send the request
+    - return the response/status"""
+
     logger.info("Attempting to login.")
 
     try:
@@ -159,6 +172,8 @@ def connect(parsed_arguments: ArgNamespace) -> str:
     except FileNotFoundError as e:
         return 'no-credentials'
 
+    # prioritize the arguments
+    # so if a credential is available as an argument, override the credential from file
     if parsed_arguments.registernumber:
         credentials['register-number'] = parsed_arguments.registernumber
 
@@ -172,26 +187,40 @@ def connect(parsed_arguments: ArgNamespace) -> str:
 
 
 def disconnect(parsed_arguments: ArgNamespace) -> str:
+    """log out of the Wi-Fi network
+    - send the request
+    - return the response/status"""
+    
     logger.info("Attempting to logout.")
 
     return src.auth.logout()
 
 
 def addcreds(parsed_arguments: ArgNamespace) -> str:
+    """store/edit user credentials
+    - get user credentials
+    - validate credentials
+    - store credentials to file
+    - verify the file"""
+
     logger.info("Attempting to add/edit credentials.")
 
-    reister_number = input("Enter your register number: ")
+    register_number = input("Enter your register number: ")
     password = getpass("Enter your password: ")
+    confirm_password = getpass("Re-enter your password: ")
+
+    if password != confirm_password:
+        raise ValueError("Passwords do not match.")
 
     src.credentials.add_credentials(
-        CREDENTIALS_FILE_PATH, reister_number, password
+        CREDENTIALS_FILE_PATH, register_number, password
     )
 
     credentials = src.credentials.load_credentials(CREDENTIALS_FILE_PATH)
 
-    if credentials and credentials['register-number'] == reister_number and credentials['password'] == password:
-        print(
-            f"{Fore.GREEN}{Style.BRIGHT}Credentials added sucessfully.{Style.RESET_ALL}")
+    # ensure that the correct credentials were stored in the file
+    if credentials and credentials['register-number'] == register_number and credentials['password'] == password:
+        print(f"{Fore.GREEN}{Style.BRIGHT}Credentials added successfully.{Style.RESET_ALL}")
         return 'credadd-success'
 
     else:
@@ -200,13 +229,16 @@ def addcreds(parsed_arguments: ArgNamespace) -> str:
 
 
 def purgecreds(parsed_arguments: ArgNamespace) -> str:
+    """purge user credentials
+    - delete credentials file
+    - verify that the file has been deleted"""
+
     logger.info("Attempting to purge credentials.")
 
     src.credentials.purge_credentials(CREDENTIALS_FILE_PATH)
 
     if not CREDENTIALS_FILE_PATH.exists():
-        print(
-            f"{Fore.GREEN}{Style.BRIGHT}Credentials purged sucessfully.{Style.RESET_ALL}")
+        print(f"{Fore.GREEN}{Style.BRIGHT}Credentials purged sucessfully.{Style.RESET_ALL}")
         return 'credpurge-success'
 
     else:
@@ -225,6 +257,7 @@ def main(arguments: list[str]) -> None:
     try:
         status_message: str = parsed_namespace.func(parsed_namespace)
 
+    # notify the user if an error occurs
     except Exception as e:
         logger.exception(e)
         notification = Notify(
@@ -236,8 +269,10 @@ def main(arguments: list[str]) -> None:
         notification.send(block=False)
 
     else:
+        # check whether the status message should trigger a notification
         current_status = USER_NOTIFICATION_SCHEME[status_message]
         
+        # if the status is an abnormal behaviour or failure, notify the user
         if current_status['notification']:
             notification = Notify(
                 default_notification_title=current_status['title'],

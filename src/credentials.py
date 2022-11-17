@@ -1,29 +1,45 @@
+"""
+manage user credentials
+- reads credentials from the user
+- creates/edits/deletes credentials file
+- reads credentials from files
+"""
+
 from json import dump, load
 from logging import getLogger
 from pathlib import Path
 from re import compile
 
-
-
+## regex for validating the register number
+# first two characters must be digits, followed by three uppercase letters, and must end in four digits
 REGISTER_NUMBER_REGEX = compile(r"^\d{2}[A-Z]{3}\d{4}$")
 
+# create a logger for this module
 logger = getLogger(__name__)
 
 
 def add_credentials(credentials_file_path: Path, register_number: str, password: str) -> None:
+    """save or edit credentials
+    - input register number and password
+    - validate register number
+    - save the data to file"""
+
     if not REGISTER_NUMBER_REGEX.match(register_number):
         raise ValueError("Invalid register number.")
 
     logger.info("Register number is valid.")
 
+    # create a dictionary because we shall save as JSON
     credentials = {
         'register-number': register_number,
         'password': password
     }
 
+    # if credentials already exist, overwrite to edit
     if credentials_file_path.exists():
         logger.info("Credentials file already exists. Overwriting.")
 
+    # if credentials do not exist, create a new file
     else:
         logger.info("Credentials file does not exist. Creating.")
         credentials_file_path.touch(exist_ok=True)
@@ -36,6 +52,9 @@ def add_credentials(credentials_file_path: Path, register_number: str, password:
 
 
 def purge_credentials(credentials_file_path: Path) -> None:
+    """purge existing credentials
+    - raise an exception if credentials file doesn't exist"""
+
     if not credentials_file_path.exists():
         raise FileNotFoundError("Credentials file does not exist.")
 
@@ -48,6 +67,9 @@ def purge_credentials(credentials_file_path: Path) -> None:
 
 
 def load_credentials(credentials_file_path: Path) -> dict[str, str]:
+    """load credentials form file
+    - raise an exception if credentials file doesn't exist"""
+
     if credentials_file_path.exists():
         logger.info("Credentials file found.")
 
