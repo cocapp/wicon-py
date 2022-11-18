@@ -85,7 +85,8 @@ def init(__name__):
     CREDENTIALS_FILE_PATH = FOLDER_PATH / "credentials.json"
 
     logger_formatter = Formatter(
-        fmt="[%(asctime)s][%(name)s][%(levelname)s] %(message)s",
+        fmt="[{asctime}][{process:05}][{name}][{levelname}] {message}",
+        style='{'
     )
     logger_file_handler = FileHandler(
         FOLDER_PATH / 'wicon.log',
@@ -263,7 +264,7 @@ def main(arguments: list[str]) -> None:
         notification = Notify(
             default_notification_title="Error",
             default_notification_message=e.args[0],
-            default_notification_application_name="WiCon"
+            default_notification_application_name="Wi-Con"
         )
 
         notification.send(block=False)
@@ -277,7 +278,7 @@ def main(arguments: list[str]) -> None:
             notification = Notify(
                 default_notification_title=current_status['title'],
                 default_notification_message=current_status['message'],
-                default_notification_application_name="WiCon"
+                default_notification_application_name="Wi-Con"
             )
 
             notification.send(block=False)
