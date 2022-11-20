@@ -91,18 +91,18 @@ def parse_login_response(html: bytes) -> str:
 
             else:
                 logger.warning(html)
-                raise ValueError(f"Got title {title} but invalid error {error}.")
+                raise ValueError(f"Got title \"{title}\" but invalid error \"{error}\".")
 
         else:
             logger.warning(html)
-            raise ValueError(f"Invalid title {title}.")
+            raise ValueError(f"Invalid title \"{title}\".")
 
     elif soup.find('b') and soup.find('b').text.strip().lower() == "you are already logged in":  # type: ignore
         return 'session-exists'
 
     else:
         logger.warning(html)
-        raise ValueError(f"Invalid page {soup}.")
+        raise ValueError("Invalid page.")
 
 
 def parse_logout_response(html: bytes) -> str:
@@ -130,11 +130,11 @@ def parse_logout_response(html: bytes) -> str:
 
         else:
             logger.warning(html)
-            raise ValueError(f"Invalid title {title}.")
+            raise ValueError(f"Invalid title \"{title}\".")
             
     else:
         logger.warning(html)
-        raise ValueError(f"Invalid page {soup}.")
+        raise ValueError("Invalid page.")
 
 
 def login(credentials: dict[str, str]) -> str:
