@@ -16,7 +16,7 @@ LOGIN_URL = "http://phc.prontonetworks.com/cgi-bin/authlogin"
 LOGOUT_URL = "http://phc.prontonetworks.com/cgi-bin/authlogout"
 
 # HTTP headers for logging in
-# TODO see if any headers can be removed
+# TODO #1 see if any login headers can be removed
 LOGIN_HEADERS = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
     'Accept-Encoding': 'gzip, deflate',
@@ -34,7 +34,7 @@ LOGIN_HEADERS = {
 }
 
 # HTTP headers for logging out
-# TODO see if any headers can be removed
+# TODO #2 see if any logout headers can be removed
 LOGOUT_HEADERS = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
     'Accept-Encoding': 'gzip, deflate',
@@ -104,7 +104,7 @@ def parse_login_response(html: bytes) -> str:
         logger.warning(html)
         raise ValueError("Invalid page.")
 
-
+# TODO #3 check SSID programatically
 def parse_logout_response(html: bytes) -> str:
     """parse logout HTML response
     - parse using BeautifulSoup
