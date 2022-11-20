@@ -74,6 +74,9 @@ def parse_login_response(html: bytes) -> str:
         if title.text.strip().lower() == "successful pronto authentication":
             return 'login-success'
 
+        elif title.text.strip().lower() == "active session exist":
+            return 'session-exists'
+
         # check error elements if we get back a generic title
         elif title.text.strip().lower() == "volswifi authentication":
             error = soup.find('td', {'class': "errorText10"}).text.strip().lower()  # type: ignore
