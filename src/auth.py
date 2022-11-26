@@ -76,6 +76,9 @@ def parse_login_response(html: bytes) -> str:
 
         elif title.text.strip().lower() == "active session exist":
             return 'session-exists'
+        
+        elif title.text.strip().lower() == "this is the default server vhost":
+            return 'not-on-vit'
 
         # check error elements if we get back a generic title
         elif title.text.strip().lower() == "volswifi authentication":

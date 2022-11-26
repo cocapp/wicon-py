@@ -54,6 +54,9 @@ USER_NOTIFICATION_SCHEME = {
         'message': "Logout successful",
         'title': "Logged out of the Wi-Fi network",
     },
+    'not-on-vit': {
+        'notification': False
+    },
     'credadd-success': {
         'notification': False
     },
