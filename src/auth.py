@@ -66,7 +66,6 @@ def parse_login_response(html: bytes) -> str:
     5. if page title element didn't exist, check page contents"""
 
     soup = BeautifulSoup(html, HTML_PARSER)
-    logger.debug(soup.find('b'))
 
     # if title is not none, proceed and store its value to `title`
     if title := soup.find('title'):
@@ -162,8 +161,6 @@ def login(credentials: dict[str, str]) -> str:
     # analyse the HTTP status code and (if available) response
     if int(login_request.status_code == OK):
         logger.info("Login request acknowledged.")
-
-        logger.debug(login_request.content)
 
         parsed_response_status = parse_login_response(login_request.content)
         logger.info("Response parsed.")
