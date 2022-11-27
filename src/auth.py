@@ -69,18 +69,19 @@ def parse_login_response(html: bytes) -> str:
 
     # if title is not none, proceed and store its value to `title`
     if title := soup.find('title'):
+        clean_title = title.text.strip().lower()
 
-        if title.text.strip().lower() == "successful pronto authentication":
+        if clean_title == "successful pronto authentication":
             return 'login-success'
 
-        elif title.text.strip().lower() == "active session exist":
+        elif clean_title == "active session exist":
             return 'session-exists'
         
-        elif title.text.strip().lower() == "this is the default server vhost":
+        elif clean_title == "this is the default server vhost":
             return 'not-on-vit'
 
         # check error elements if we get back a generic title
-        elif title.text.strip().lower() == "volswifi authentication":
+        elif clean_title == "volswifi authentication":
             error = soup.find('td', {'class': "errorText10"}).text.strip().lower()  # type: ignore
 
             standard_errors = {
@@ -122,17 +123,17 @@ def parse_logout_response(html: bytes) -> str:
     soup = BeautifulSoup(html, HTML_PARSER)
 
     if title := soup.find('title'):
-        title = title.text.strip().lower()
+        clean_title = title.text.strip().lower()
 
-        if title == "logout failure":
+        if clean_title == "logout failure":
             return 'logout-failure'
 
-        elif title == "logout successful":
+        elif clean_title == "logout successful":
             return 'logout-success'
 
         else:
             logger.warning(html)
-            raise ValueError(f"Invalid title \"{title}\".")
+            raise ValueError(f"Invalid title \"{clean_title}\".")
             
     else:
         logger.warning(html)
