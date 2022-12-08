@@ -71,6 +71,13 @@ USER_NOTIFICATION_SCHEME = {
     }
 }
 
+# raise a default notification in case of a key error
+DEFAULT_NOTIFICATION = {
+    'notification': True,
+    'title': "Unknown Status",
+    'message': "Please send the log file to the developer.",
+}
+
 
 def init(__name__):
     """initialize objects for later use
@@ -184,7 +191,7 @@ def connect(parsed_arguments: ArgNamespace) -> str:
     if parsed_arguments.password:
         credentials['password'] = parsed_arguments.password
 
-    if not (credentials['register-number'] and credentials['password']):
+    if not (('register-number' in credentials) and ('password' in credentials)):
         logger.warning("Possibly missing credentials.")
 
     return src.auth.login(credentials)
@@ -223,7 +230,7 @@ def addcreds(parsed_arguments: ArgNamespace) -> str:
     credentials = src.credentials.load_credentials(CREDENTIALS_FILE_PATH)
 
     # ensure that the correct credentials were stored in the file
-    if credentials and credentials['register-number'] == register_number and credentials['password'] == password:
+    if credentials and credentials.get('register-number') == register_number and credentials.get('password') == password:
         print(f"{Fore.GREEN}{Style.BRIGHT}Credentials added successfully.{Style.RESET_ALL}")
         return 'credadd-success'
 
@@ -274,13 +281,13 @@ def main(arguments: list[str]) -> None:
 
     else:
         # check whether the status message should trigger a notification
-        current_status = USER_NOTIFICATION_SCHEME[status_message]
+        current_status: dict[str, str] = USER_NOTIFICATION_SCHEME.get(status_message, DEFAULT_NOTIFICATION)
         
         # if the status is an abnormal behaviour or failure, notify the user
-        if current_status['notification']:
+        if current_status.get('notification', True):
             notification = Notify(
-                default_notification_title=current_status['title'],
-                default_notification_message=current_status['message'],
+                default_notification_title=current_status.get('title', DEFAULT_NOTIFICATION['title']),
+                default_notification_message=current_status.get('message', DEFAULT_NOTIFICATION['message']),
                 default_notification_application_name="Wi-Con"
             )
 
