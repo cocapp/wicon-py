@@ -86,7 +86,7 @@ def parse_login_response(html: bytes) -> str:
 
             standard_errors = {
                 "sorry, please check your username and password and try again.": 'password-failure',
-                "sorry, that account does not exist": 'id-failure'
+                "sorry, that account does not exist.": 'id-failure'
             }
 
             if error in standard_errors:
