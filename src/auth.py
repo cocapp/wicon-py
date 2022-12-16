@@ -126,7 +126,7 @@ def parse_login_response(html: bytes) -> str:
         logger.warning(html)
         raise ValueError("Invalid page.")
 
-# TODO #3 check SSID programatically
+
 def parse_logout_response(html: bytes) -> str:
     """parse logout HTML response
     - parse using BeautifulSoup
