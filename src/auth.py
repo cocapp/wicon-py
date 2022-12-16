@@ -15,36 +15,6 @@ from requests import ConnectionError, get, post
 LOGIN_URL = "http://phc.prontonetworks.com/cgi-bin/authlogin"
 LOGOUT_URL = "http://phc.prontonetworks.com/cgi-bin/authlogout"
 
-# HTTP headers for logging in
-# TODO #1 see if any login headers can be removed
-LOGIN_HEADERS = {
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-    'Accept-Encoding': 'gzip, deflate',
-    'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8',
-    'Cache-Control': 'none',
-    'Connection': 'keep-alive',
-    'Content-Length': '80',
-    'Content-Type': 'application/x-www-form-urlencoded',
-    'DNT': '1',
-    'Host': 'phc.prontonetworks.com',
-    'Origin': 'http://phc.prontonetworks.com',
-    'Referer': 'http://phc.prontonetworks.com/cgi-bin/authlogin',
-    'Upgrade-Insecure-Requests': '1',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'
-}
-
-# HTTP headers for logging out
-# TODO #2 see if any logout headers can be removed
-LOGOUT_HEADERS = {
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-    'Accept-Encoding': 'gzip, deflate',
-    'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8',
-    'Connection': 'keep-alive',
-    'DNT': '1',
-    'Host': 'phc.prontonetworks.com', 'Upgrade-Insecure-Requests': '1',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'
-}
-
 # HTML parser to understand server response
 HTML_PARSER = 'html.parser'
 
@@ -156,8 +126,7 @@ def login(credentials: dict[str, str]) -> str:
     try:
         login_request = post(
             LOGIN_URL,
-            data=login_payload,
-            headers=LOGIN_HEADERS
+            data=login_payload
         )
 
     except ConnectionError as e:
@@ -185,8 +154,7 @@ def logout() -> str:
 
     try:
         logout_request = get(
-        url=LOGOUT_URL,
-        headers=LOGOUT_HEADERS
+        url=LOGOUT_URL
     )
 
     except ConnectionError as e:
