@@ -9,7 +9,7 @@ from http.client import OK
 from logging import getLogger
 
 from bs4 import BeautifulSoup
-from requests import get, post
+from requests import ConnectionError, get, post
 
 # URLs for the service
 LOGIN_URL = "http://phc.prontonetworks.com/cgi-bin/authlogin"
@@ -153,11 +153,15 @@ def login(credentials: dict[str, str]) -> str:
         'password': credentials['password']
     }
 
-    login_request = post(
-        LOGIN_URL,
-        data=login_payload,
-        headers=LOGIN_HEADERS
-    )
+    try:
+        login_request = post(
+            LOGIN_URL,
+            data=login_payload,
+            headers=LOGIN_HEADERS
+        )
+
+    except ConnectionError as e:
+        raise ConnectionError(f"Server-side error. Contact CTS or wait until morning.") from e
 
     # analyse the HTTP status code and (if available) response
     if int(login_request.status_code == OK):
@@ -179,10 +183,14 @@ def logout() -> str:
     - send the request
     - return the response"""
 
-    logout_request = get(
+    try:
+        logout_request = get(
         url=LOGOUT_URL,
         headers=LOGOUT_HEADERS
     )
+
+    except ConnectionError as e:
+        raise ConnectionError(f"Server-side error. Contact CTS or wait until morning.") from e
 
     # analyse the HTTP status code and (if available) response
     if int(logout_request.status_code == OK):
