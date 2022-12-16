@@ -171,9 +171,13 @@ def define_and_read_args(arguments: list[str]) -> ArgNamespace:
 
 def connect(parsed_arguments: ArgNamespace) -> str:
     """log in to the Wi-Fi network
+    - check if on VIT network
     - get credentials and handle relevant CLI arguments
     - send the request
     - return the response/status"""
+
+    if not src.auth.check_ssid(src.auth.get_ssid()):
+        return 'not-on-vit'
 
     logger.info("Attempting to login.")
 
@@ -199,8 +203,12 @@ def connect(parsed_arguments: ArgNamespace) -> str:
 
 def disconnect(parsed_arguments: ArgNamespace) -> str:
     """log out of the Wi-Fi network
+    - check if on VIT network
     - send the request
     - return the response/status"""
+
+    if not src.auth.check_ssid(src.auth.get_ssid()):
+        return 'not-on-vit'
     
     logger.info("Attempting to logout.")
 

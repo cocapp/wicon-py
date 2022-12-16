@@ -7,6 +7,9 @@ communicate with the server
 
 from http.client import OK
 from logging import getLogger
+from os import popen
+from platform import system as get_os_name
+from re import match
 
 from bs4 import BeautifulSoup
 from requests import ConnectionError, get, post
@@ -18,8 +21,54 @@ LOGOUT_URL = "http://phc.prontonetworks.com/cgi-bin/authlogout"
 # HTML parser to understand server response
 HTML_PARSER = 'html.parser'
 
+# Regex for SSIDs at VIT
+SSID_REGEX = {
+    "2.4 GHz":  r"VIT *2\.4 *G *\d*",
+    "5 GHz":  r"VIT *5 *G *\d*",
+    "test":  r"test *\d*"
+}
+
 # create a logger for this module
 logger = getLogger(__name__)
+
+def get_ssid() -> str:
+    """get the SSID of the network the user is connected to
+    - detect the operating system
+    - use the appropriate shell command to get the SSID
+    - return the SSID"""
+
+    os_name = get_os_name()
+    logger.debug(f"Detected OS: {os_name}")
+
+    if os_name == 'Windows':
+        output = popen("netsh wlan show interfaces").read()
+        ssid = output.split("SSID")[1].split(":")[1].split('\n')[0].strip()
+
+    elif os_name == 'Linux':
+        output = popen("iwgetid").read()
+        ssid = output.split('"')[1]
+
+    elif os_name == 'Darwin':
+        output = popen("airport -I").read()
+        ssid = output.split("")[1].split(":")[1].strip()
+
+    else:
+        raise NotImplementedError(f"Unsupported OS: {os_name}")
+
+    logger.info(f"Detected SSID: {ssid}")
+    return ssid
+
+
+def check_ssid(ssid: str) -> bool:
+    """check if the user is connected to a VIT network
+    - check if the SSID matches the regex for VIT networks
+    - return True if connected to a VIT network, False otherwise"""
+
+    return any(
+        match(regex, ssid) is not None
+        for regex in SSID_REGEX.values()
+    )
+
 
 def parse_login_response(html: bytes) -> str:
     """parse login HTML response
