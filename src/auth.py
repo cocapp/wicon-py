@@ -22,11 +22,11 @@ LOGOUT_URL = "http://phc.prontonetworks.com/cgi-bin/authlogout"
 HTML_PARSER = 'html.parser'
 
 # Regex for SSIDs at VIT
-SSID_REGEX = {
-    "2.4 GHz":  r"VIT *2\.4 *G? *\d*",
-    "5 GHz":  r"VIT *5 *G? *\d*",
-    "test":  r"test *\d*"
-}
+SSID_REGEX = (
+    r"VIT *2\.4 *G? *\d*",
+    r"VIT *5 *G? *\d*",
+    r"test *\d*"
+)
 
 # create a logger for this module
 logger = getLogger(__name__)
@@ -66,7 +66,7 @@ def check_ssid(ssid: str) -> bool:
 
     return any(
         match(regex, ssid) is not None
-        for regex in SSID_REGEX.values()
+        for regex in SSID_REGEX
     )
 
 
