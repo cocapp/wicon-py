@@ -42,15 +42,30 @@ def get_ssid() -> str:
 
     if os_name == 'Windows':
         output = popen("netsh wlan show interfaces").read()
+        status = output.split("State")[1].split(":")[1].split('\n')[0].strip()
+
+        if status != "connected":
+            raise ConnectionError("Not connected to any Wi-Fi network.")
+
         ssid = output.split("SSID")[1].split(":")[1].split('\n')[0].strip()
 
     elif os_name == 'Linux':
         output = popen("iwgetid").read()
+        status = output.split(" ")[0].strip()
+
+        if status != "wlan0":
+            raise ConnectionError("Not connected to any Wi-Fi network.")
+
         ssid = output.split('"')[1]
 
     elif os_name == 'Darwin':
         output = popen("airport -I").read()
-        ssid = output.split("")[1].split(":")[1].strip()
+        status = output.split("state:")[1].split('\n')[0].strip()
+
+        if status != "running":
+            raise ConnectionError("Not connected to any Wi-Fi network.")
+
+        ssid = output.split(" SSID:")[1].split('\n')[0].strip()
 
     else:
         raise NotImplementedError(f"Unsupported OS: {os_name}")
