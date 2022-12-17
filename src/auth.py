@@ -23,8 +23,8 @@ HTML_PARSER = 'html.parser'
 
 # Regex for SSIDs at VIT
 SSID_REGEX = {
-    "2.4 GHz":  r"VIT *2\.4 *G *\d*",
-    "5 GHz":  r"VIT *5 *G *\d*",
+    "2.4 GHz":  r"VIT *2\.4 *G? *\d*",
+    "5 GHz":  r"VIT *5 *G? *\d*",
     "test":  r"test *\d*"
 }
 
