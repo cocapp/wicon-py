@@ -33,7 +33,7 @@ This application helps you login to the Wi-Fi networks used for students at VIT 
     $ python ./login_cli.py addcreds
     Enter your register number: 21BEE8964
     Enter your password:
-    Credentials added sucessfully.
+    Credentials added successfully.
     ```
 
     The echo is turned off when entering the password, and it is normal for no text to be displayed.

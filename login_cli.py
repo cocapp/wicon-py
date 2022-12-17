@@ -257,7 +257,7 @@ def purgecreds(parsed_arguments: ArgNamespace) -> str:
     src.credentials.purge_credentials(CREDENTIALS_FILE_PATH)
 
     if not CREDENTIALS_FILE_PATH.exists():
-        print(f"{Fore.GREEN}{Style.BRIGHT}Credentials purged sucessfully.{Style.RESET_ALL}")
+        print(f"{Fore.GREEN}{Style.BRIGHT}Credentials purged successfully.{Style.RESET_ALL}")
         return 'credpurge-success'
 
     else:
