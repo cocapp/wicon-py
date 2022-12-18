@@ -53,7 +53,7 @@ def get_ssid() -> str:
         output = popen("iwgetid").read()
         status = output.split(" ")[0].strip()
 
-        if status != "wlan0":
+        if "SSID" not in output:
             raise ConnectionError("Not connected to any Wi-Fi network.")
 
         ssid = output.split('"')[1]
