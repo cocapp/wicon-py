@@ -59,13 +59,12 @@ def get_ssid() -> str:
         ssid = output.split('"')[1]
 
     elif os_name == 'Darwin':
-        output = popen("airport -I").read()
-        status = output.split("state:")[1].split('\n')[0].strip()
+        output = popen("ipconfig getsummary en0").read()
 
-        if status != "running":
+        if "SSID" not in output:
             raise ConnectionError("Not connected to any Wi-Fi network.")
 
-        ssid = output.split(" SSID:")[1].split('\n')[0].strip()
+        ssid = output.split("SSID:")[1].split('\n')[0].strip()
 
     else:
         raise NotImplementedError(f"Unsupported OS: {os_name}")

@@ -40,7 +40,7 @@ USER_NOTIFICATION_SCHEME = {
         'message': "No credentials found. Please create then using the command \"wicon addcreds\"."
     },
     'session-exists': {
-        'notification': True,
+        'notification': False,
         'message': "Already logged in",
         'title': "Login successful",
     },
