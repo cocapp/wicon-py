@@ -64,7 +64,7 @@ def get_ssid() -> str:
         if "SSID" not in output:
             raise ConnectionError("Not connected to any Wi-Fi network.")
 
-        ssid = output.split("SSID:")[1].split('\n')[0].strip()
+        ssid = output.split("SSID :")[1].split('\n')[0].strip()
 
     else:
         raise NotImplementedError(f"Unsupported OS: {os_name}")
