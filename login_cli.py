@@ -5,6 +5,7 @@ from logging import DEBUG, INFO, FileHandler, Formatter, getLogger
 from os import environ
 from pathlib import Path
 from sys import argv
+from json import JSONDecodeError, load, dump
 
 from colorama import Fore, Style
 from notifypy import Notify
@@ -18,7 +19,7 @@ LOGGER_LEVEL = INFO
 # set a scheme for the notifying the user based on custom status messages
 # in general, the user is notified only of failures or other abnormal events
 # the user is not notified if they are expected to be active on a command line
-USER_NOTIFICATION_SCHEME = {
+DEFAULT_USER_NOTIFICATION_SCHEME = {
     'login-success': {
         'notification': False,
         'title': "Login successful",
@@ -93,6 +94,25 @@ def init(__name__):
     FOLDER_PATH.mkdir(exist_ok=True, parents=True)
 
     CREDENTIALS_FILE_PATH = FOLDER_PATH / "credentials.json"
+    SETTINGS_FILE_PATH = FOLDER_PATH / "wicon-settings.json"
+
+    if SETTINGS_FILE_PATH.exists():
+        with open(SETTINGS_FILE_PATH, 'r') as settings_file:
+            try:
+                USER_SETTINGS = load(settings_file)
+
+            except JSONDecodeError as e:
+                raise ValueError("Invalid settings JSON.") from e
+
+    else:
+        SETTINGS_FILE_PATH.touch()
+        with open(SETTINGS_FILE_PATH, 'w') as settings_file:
+            USER_SETTINGS = {
+                "notification-settings": DEFAULT_USER_NOTIFICATION_SCHEME
+            }
+
+            dump(USER_SETTINGS, settings_file, indent=4)
+
 
     logger_formatter = Formatter(
         fmt="[{asctime}][{process:05}][{name}][{levelname}] {message}",
@@ -115,7 +135,7 @@ def init(__name__):
     logger.addHandler(logger_file_handler)
     logger.setLevel(LOGGER_LEVEL)
 
-    return CREDENTIALS_FILE_PATH, logger
+    return USER_SETTINGS, CREDENTIALS_FILE_PATH, logger
 
 
 def define_and_read_args(arguments: list[str]) -> ArgNamespace:
@@ -289,7 +309,7 @@ def main(arguments: list[str]) -> None:
 
     else:
         # check whether the status message should trigger a notification
-        current_status: dict[str, str] = USER_NOTIFICATION_SCHEME.get(status_message, DEFAULT_NOTIFICATION)
+        current_status: dict[str, str] = USER_SETTINGS.get('notification-settings', dict()).get(status_message, DEFAULT_NOTIFICATION)
         
         # if the status is an abnormal behaviour or failure, notify the user
         if current_status.get('notification', True):
@@ -308,5 +328,5 @@ def main(arguments: list[str]) -> None:
 
 
 if __name__ == "__main__":
-    CREDENTIALS_FILE_PATH, logger = init(__name__)
+    USER_SETTINGS, CREDENTIALS_FILE_PATH, logger = init(__name__)
     main(argv[1:])
