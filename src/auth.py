@@ -45,7 +45,7 @@ def get_ssid() -> str:
         status = output.split("State")[1].split(":")[1].split('\n')[0].strip()
 
         if status != "connected":
-            raise ConnectionError("Not connected to any Wi-Fi network.")
+            raise ConnectionError("Turn on Wifi From Device Settings:)")
 
         ssid = output.split("SSID")[1].split(":")[1].split('\n')[0].strip()
 
@@ -54,7 +54,7 @@ def get_ssid() -> str:
         status = output.split(" ")[0].strip()
 
         if "SSID" not in output:
-            raise ConnectionError("Not connected to any Wi-Fi network.")
+            raise ConnectionError("Turn on Wifi From Device Settings:)")
 
         ssid = output.split('"')[1]
 
@@ -62,7 +62,7 @@ def get_ssid() -> str:
         output = popen("ipconfig getsummary en0 | grep -e \" *SSID\"").read()
 
         if "SSID" not in output:
-            raise ConnectionError("Not connected to any Wi-Fi network.")
+            raise ConnectionError("Turn on Wifi From Device Settings:)")
 
         ssid = output.split("SSID :")[1].strip()
 
