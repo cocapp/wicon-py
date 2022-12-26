@@ -20,8 +20,6 @@ logger = getLogger(__name__)
 
 def add_credentials(credentials_file_path: Path, register_number: str, password: str) -> None:
     """save or edit credentials
-    - input register number and password
-    - validate register number
     - save the data to file"""
 
     # create a dictionary because we shall save as JSON
