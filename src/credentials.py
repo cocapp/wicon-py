@@ -24,11 +24,6 @@ def add_credentials(credentials_file_path: Path, register_number: str, password:
     - validate register number
     - save the data to file"""
 
-    if not REGISTER_NUMBER_REGEX.match(register_number):
-        raise ValueError("Invalid register number.")
-
-    logger.info("Register number is valid.")
-
     # create a dictionary because we shall save as JSON
     credentials = {
         'register-number': register_number,
