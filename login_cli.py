@@ -224,27 +224,36 @@ def addcreds(parsed_arguments: ArgNamespace) -> str:
 
     logger.info("Attempting to add/edit credentials.")
 
-    register_number = input("Enter your register number: ")
-    password = getpass("Enter your password: ")
-    confirm_password = getpass("Re-enter your password: ")
+    try:
+        register_number = input("Enter your register number: ")
 
-    if password != confirm_password:
-        raise ValueError("Passwords do not match.")
+        if not src.credentials.REGISTER_NUMBER_REGEX.match(register_number):
+            raise ValueError("Invalid register number.")
 
-    src.credentials.add_credentials(
-        CREDENTIALS_FILE_PATH, register_number, password
-    )
+        password = getpass("Enter your password: ")
+        confirm_password = getpass("Re-enter your password: ")
 
-    credentials = src.credentials.load_credentials(CREDENTIALS_FILE_PATH)
+        if password != confirm_password:
+            raise ValueError("Passwords do not match.")
 
-    # ensure that the correct credentials were stored in the file
-    if credentials and credentials.get('register-number') == register_number and credentials.get('password') == password:
-        print(f"{Fore.GREEN}{Style.BRIGHT}Credentials added successfully.{Style.RESET_ALL}")
-        return 'credadd-success'
+    except ValueError as e:
+        logger.error(e)
+        print(f"{Fore.RED}{Style.BRIGHT}{e.args[0]}{Style.RESET_ALL}")
 
     else:
-        print(f"{Fore.RED}{Style.BRIGHT}Failed to add credentials.{Style.RESET_ALL}")
-        return 'credadd-failure'
+        src.credentials.add_credentials(
+            CREDENTIALS_FILE_PATH, register_number, password
+        )
+
+        credentials = src.credentials.load_credentials(CREDENTIALS_FILE_PATH)
+
+        # ensure that the correct credentials were stored in the file
+        if credentials and credentials.get('register-number') == register_number and credentials.get('password') == password:
+            print(f"{Fore.GREEN}{Style.BRIGHT}Credentials added successfully.{Style.RESET_ALL}")
+            return 'credadd-success'
+
+    print(f"{Fore.RED}{Style.BRIGHT}Failed to add credentials.{Style.RESET_ALL}")
+    return 'credadd-failure'
 
 
 def purgecreds(parsed_arguments: ArgNamespace) -> str:
