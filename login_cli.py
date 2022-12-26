@@ -241,7 +241,7 @@ def addcreds(parsed_arguments: ArgNamespace) -> str:
             logger.info("Passwords match.")
 
     except ValueError as e:
-        logger.error(e)
+        logger.exception(e)
         print(f"{Fore.RED}{Style.BRIGHT}{e.args[0]}{Style.RESET_ALL}")
 
     else:
