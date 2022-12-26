@@ -242,7 +242,7 @@ def addcreds(parsed_arguments: ArgNamespace) -> str:
 
     except ValueError as e:
         logger.exception(e)
-        print(f"{Fore.RED}{Style.BRIGHT}{e.args[0]}{Style.RESET_ALL}")
+        print(e.args[0])
 
     else:
         src.credentials.add_credentials(
@@ -267,15 +267,20 @@ def purgecreds(parsed_arguments: ArgNamespace) -> str:
 
     logger.info("Attempting to purge credentials.")
 
-    src.credentials.purge_credentials(CREDENTIALS_FILE_PATH)
-
-    if not CREDENTIALS_FILE_PATH.exists():
-        print(f"{Fore.GREEN}{Style.BRIGHT}Credentials purged successfully.{Style.RESET_ALL}")
-        return 'credpurge-success'
+    try:
+        src.credentials.purge_credentials(CREDENTIALS_FILE_PATH)
+    
+    except FileNotFoundError as e:
+        logger.exception(e)
+        print(e.args[0])
 
     else:
-        print(f"{Fore.RED}{Style.BRIGHT}Failed to purge credentials.{Style.RESET_ALL}")
-        return 'credpurge-failure'
+        if not CREDENTIALS_FILE_PATH.exists():
+            print(f"{Fore.GREEN}{Style.BRIGHT}Credentials purged successfully.{Style.RESET_ALL}")
+            return 'credpurge-success'
+
+    print(f"{Fore.RED}{Style.BRIGHT}Failed to purge credentials.{Style.RESET_ALL}")
+    return 'credpurge-failure'
 
 
 def main(arguments: list[str]) -> None:
