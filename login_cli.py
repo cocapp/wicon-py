@@ -229,12 +229,16 @@ def addcreds(parsed_arguments: ArgNamespace) -> str:
 
         if not src.credentials.REGISTER_NUMBER_REGEX.match(register_number):
             raise ValueError("Invalid register number.")
+        else:
+            logger.info("Register number is valid.")
 
         password = getpass("Enter your password: ")
         confirm_password = getpass("Re-enter your password: ")
 
         if password != confirm_password:
             raise ValueError("Passwords do not match.")
+        else:
+            logger.info("Passwords match.")
 
     except ValueError as e:
         logger.error(e)
