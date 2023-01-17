@@ -198,6 +198,7 @@ def login(credentials: dict[str, str]) -> str:
     # analyse the HTTP status code and (if available) response
     if int(login_request.status_code == OK):
         logger.info("Login request acknowledged.")
+        logger.info(f"Status code {login_request.status_code}.")
 
         parsed_response_status = parse_login_response(login_request.content)
         logger.info("Response parsed.")
@@ -226,6 +227,7 @@ def logout() -> str:
     # analyse the HTTP status code and (if available) response
     if int(logout_request.status_code == OK):
         logger.info("Logout request acknowledged.")
+        logger.info(f"Status code {logout_request.status_code}.")
 
         parsed_response_status = parse_logout_response(logout_request.content)
         logger.info("Response parsed.")
