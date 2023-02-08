@@ -1,7 +1,8 @@
 from argparse import ArgumentParser
 from argparse import Namespace as ArgNamespace
 from getpass import getpass
-from logging import DEBUG, INFO, FileHandler, Formatter, getLogger
+from json import JSONDecodeError, dump, loads
+from logging import DEBUG, INFO, FileHandler, Formatter, Logger, getLogger
 from os import environ
 from pathlib import Path
 from sys import argv
@@ -18,7 +19,7 @@ LOGGER_LEVEL = INFO
 # set a scheme for the notifying the user based on custom status messages
 # in general, the user is notified only of failures or other abnormal events
 # the user is not notified if they are expected to be active on a command line
-USER_NOTIFICATION_SCHEME = {
+DEFAULT_USER_NOTIFICATION_SCHEME: dict[str, dict[str, str | bool]] = {
     'login-success': {
         'notification': False,
         'title': "Login successful",
@@ -72,18 +73,54 @@ USER_NOTIFICATION_SCHEME = {
 }
 
 # raise a default notification in case of a key error
-DEFAULT_NOTIFICATION = {
+DEFAULT_NOTIFICATION: dict[str, str | bool] = {
     'notification': True,
     'title': "Unknown Status",
     'message': "Please send the log file to the developer.",
 }
 
 
-def init(__name__):
+def load_settings(settings_file_path: Path, logger: Logger) -> dict[str, dict[str, dict[str, str | bool]]]:
+    """load the user settings from the settings file
+    - if the file does not exist, create it and return the default settings"""
+
+    if settings_file_path.exists():
+        with open(settings_file_path, 'r') as settings_file:
+            settings = settings_file.read().strip()
+
+            if settings:
+                try:
+                    USER_SETTINGS = loads(settings)
+
+                except JSONDecodeError as e:
+                    logger.warn(settings)
+                    raise ValueError("Invalid settings JSON.") from e
+
+                else:
+                    logger.info("Settings file found and loaded.")
+                    return USER_SETTINGS
+
+    settings_file_path.touch()
+    with open(settings_file_path, 'w') as settings_file:
+        logger.info("Creating settings file with default settings.")
+
+        USER_SETTINGS = {
+            "notification-settings": DEFAULT_USER_NOTIFICATION_SCHEME
+        }
+
+        dump(USER_SETTINGS, settings_file, indent=4)
+        logger.info("Settings file created.")
+
+    return USER_SETTINGS
+
+
+def init(__name__: str) -> tuple[dict[str, dict[str, dict[str, str | bool]]], Path, Logger]:
     """initialize objects for later use
     - set file path objects for credentials and logging
     - configure the loggers
     """
+
+    # handle cases where the folder is not the default
     if (folder_name := environ.get('DATA')):
         FOLDER_PATH = Path(folder_name)
 
@@ -92,8 +129,7 @@ def init(__name__):
 
     FOLDER_PATH.mkdir(exist_ok=True, parents=True)
 
-    CREDENTIALS_FILE_PATH = FOLDER_PATH / "credentials.json"
-
+    # configure the loggers
     logger_formatter = Formatter(
         fmt="[{asctime}][{process:05}][{name}][{levelname}] {message}",
         style='{'
@@ -115,7 +151,14 @@ def init(__name__):
     logger.addHandler(logger_file_handler)
     logger.setLevel(LOGGER_LEVEL)
 
-    return CREDENTIALS_FILE_PATH, logger
+    # set the paths for individual files
+    CREDENTIALS_FILE_PATH = FOLDER_PATH / "credentials.json"
+    SETTINGS_FILE_PATH = FOLDER_PATH / "wicon-settings.json"
+
+    # load the user settings
+    USER_SETTINGS = load_settings(SETTINGS_FILE_PATH, logger)
+
+    return USER_SETTINGS, CREDENTIALS_FILE_PATH, logger
 
 
 def define_and_read_args(arguments: list[str]) -> ArgNamespace:
@@ -307,13 +350,13 @@ def main(arguments: list[str]) -> None:
 
     else:
         # check whether the status message should trigger a notification
-        current_status: dict[str, str] = USER_NOTIFICATION_SCHEME.get(status_message, DEFAULT_NOTIFICATION)
+        current_status: dict[str, dict[str, str | bool]] = USER_SETTINGS.get('notification-settings', dict()).get(status_message, DEFAULT_NOTIFICATION)  # type: ignore
         
         # if the status is an abnormal behaviour or failure, notify the user
         if current_status.get('notification', True):
             notification = Notify(
-                default_notification_title=current_status.get('title', DEFAULT_NOTIFICATION['title']),
-                default_notification_message=current_status.get('message', DEFAULT_NOTIFICATION['message']),
+                default_notification_title=current_status.get('title', DEFAULT_NOTIFICATION['title']),  # type: ignore
+                default_notification_message=current_status.get('message', DEFAULT_NOTIFICATION['message']),  # type: ignore
                 default_notification_application_name="Wi-Con"
             )
 
@@ -326,5 +369,5 @@ def main(arguments: list[str]) -> None:
 
 
 if __name__ == "__main__":
-    CREDENTIALS_FILE_PATH, logger = init(__name__)
+    USER_SETTINGS, CREDENTIALS_FILE_PATH, logger = init(__name__)
     main(argv[1:])
