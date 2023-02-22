@@ -12,7 +12,7 @@ from re import compile
 
 ## regex for validating the register number
 # first two characters must be digits, followed by three uppercase letters, and must end in four digits
-REGISTER_NUMBER_REGEX = compile(r"^\d{2}[A-Z]{3}\d{4}$")
+REGISTER_NUMBER_REGEX = compile(r"^(?P<year>\d{2})(?P<course>[A-Z]{3})(?P<student_number>\d{4}$)")
 
 # create a logger for this module
 logger = getLogger(__name__)

@@ -1,3 +1,12 @@
+"""
+- integrate the entire application
+- define the CLI and serve the it
+- handle user settings
+- handle logging
+- handle notifications
+- handle exceptions
+"""
+
 from argparse import ArgumentParser
 from argparse import Namespace as ArgNamespace
 from getpass import getpass
