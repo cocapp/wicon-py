@@ -12,7 +12,7 @@ from re import compile
 
 ## regex for validating the register number
 # first two characters must be digits, followed by three uppercase letters, and must end in four digits
-REGISTER_NUMBER_REGEX = compile(r"^\d{2}[A-Z]{3}\d{4}$")
+REGISTER_NUMBER_REGEX = compile(r"^(?P<year>\d{2})(?P<course>[A-Z]{3})(?P<student_number>\d{4}$)")
 
 # create a logger for this module
 logger = getLogger(__name__)
@@ -20,14 +20,7 @@ logger = getLogger(__name__)
 
 def add_credentials(credentials_file_path: Path, register_number: str, password: str) -> None:
     """save or edit credentials
-    - input register number and password
-    - validate register number
     - save the data to file"""
-
-    if not REGISTER_NUMBER_REGEX.match(register_number):
-        raise ValueError("Invalid register number.")
-
-    logger.info("Register number is valid.")
 
     # create a dictionary because we shall save as JSON
     credentials = {
