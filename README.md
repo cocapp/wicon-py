@@ -5,7 +5,7 @@ This application helps you login to the Wi-Fi networks used for students at VIT 
 ### DISCLAIMERS
 *   This software has been tested on Windows only, not on MacOS or GNU/Linux even though support for these is included.
 
-    To all Linux users on campus: We would really appreciate it if you would please help us out by testing it for us 😊
+    To all Linux and MacOS users on campus: We would really appreciate it if you would please help us out by testing it for us 😊
 
 *   This has not yet been approved by VIT staff in any capacity, and is **not official software**. Please use this completely at your own risk.
 
