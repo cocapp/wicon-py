@@ -10,6 +10,7 @@ from logging import getLogger
 from os import popen
 from platform import system as get_os_name
 from re import compile as re_compile
+from re import match as re_match
 
 from bs4 import BeautifulSoup
 from requests import ConnectionError, get, post
@@ -119,16 +120,16 @@ def parse_login_response(html: bytes) -> str:
             error = soup.find('td', {'class': "errorText10"}).text.strip().lower()  # type: ignore
 
             standard_errors = {
-                "sorry, please check your username and password and try again.": 'password-failure',
-                "sorry, that account does not exist.": 'id-failure'
+                r"sorry, please check your username and password and try again\..*": 'password-failure',
+                r"sorry, that account does not exist\..*": 'id-failure'
             }
 
-            if error in standard_errors:
-                return standard_errors[error]
+            for regex, status in standard_errors.items():
+                if re_match(regex, error):
+                    return status
 
-            else:
-                logger.warning(html)
-                raise ValueError(f"Got title \"{title}\" but invalid error \"{error}\".")
+            logger.warning(html)
+            raise ValueError(f"Got title \"{title}\" but invalid error \"{error}\".")
 
         else:
             logger.warning(html)
