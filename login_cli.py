@@ -15,6 +15,7 @@ from logging import DEBUG, INFO, FileHandler, Formatter, Logger, getLogger
 from os import environ
 from pathlib import Path
 from sys import argv
+from sys import exit as sys_exit
 
 from colorama import Fore, Style
 from notifypy import Notify
@@ -33,51 +34,63 @@ DEFAULT_USER_NOTIFICATION_SCHEME: dict[str, dict[str, str | bool]] = {
         'notification': False,
         'title': "Login successful",
         'message': "Logged in to the Wi-Fi network.",
+        'error': False
     },
     'password-failure': {
         'notification': True,
         'message': "Incorrect password",
         'title': "Login failed",
+        'error': True
     },
     'id-failure': {
         'notification': True,
         'message': "Invalid register number",
         'title': "Login failed",
+        'error': True
     },
     'no-credentials': {
         'notification': True,
         'title': "Login failed",
-        'message': "No credentials found. Please create then using the command \"wicon addcreds\"."
+        'message': "No credentials found. Please create then using the command \"wicon addcreds\".",
+        'error': True
     },
     'session-exists': {
         'notification': True,
         'message': "Already logged in",
         'title': "Login successful",
+        'error': False
     },
     'logout-failure': {
         'notification': True,
         'message': "Logout failed",
         'title': "Possibly server error",
+        'error': True
     },
     'logout-success': {
         'notification': True,
         'message': "Logout successful",
         'title': "Logged out of the Wi-Fi network",
+        'error': False
     },
     'not-on-vit': {
-        'notification': False
+        'notification': False,
+        'error': False
     },
     'credadd-success': {
-        'notification': False
+        'notification': False,
+        'error': False
     },
     'credadd-failure': {
-        'notification': False
+        'notification': False,
+        'error': True
     },
     'credpurge-success': {
-        'notification': False
+        'notification': False,
+        'error': False
     },
     'credpurge-failure': {
-        'notification': False
+        'notification': False,
+        'error': True
     }
 }
 
@@ -335,7 +348,7 @@ def purgecreds(parsed_arguments: ArgNamespace) -> str:
     return 'credpurge-failure'
 
 
-def main(arguments: list[str]) -> None:
+def main(arguments: list[str]) -> int:
     """main function
     - parses the command line arguments
     - initialize the database
@@ -356,6 +369,7 @@ def main(arguments: list[str]) -> None:
         )
 
         notification.send(block=False)
+        exit_code = 1
 
     else:
         # check whether the status message should trigger a notification
@@ -373,10 +387,14 @@ def main(arguments: list[str]) -> None:
 
         logger.info(status_message)
 
-    logger.info("Exit.")
-    return
+        # if the status is an error, exit with a non-zero exit code
+        exit_code = int(current_status.get('error', True))
+
+    finally:
+        logger.info(f"Exited with exit code {exit_code}.")
+        return exit_code
 
 
 if __name__ == "__main__":
     USER_SETTINGS, CREDENTIALS_FILE_PATH, logger = init(__name__)
-    main(argv[1:])
+    sys_exit(main(argv[1:]))
