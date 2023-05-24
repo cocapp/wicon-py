@@ -25,7 +25,8 @@ HTML_PARSER = 'html.parser'
 SSID_REGEX = (
     re_compile(r"VIT *2\.4 *G? *\d*"),
     re_compile(r"VIT *5 *G? *\d*"),
-    re_compile(r"test *\d*")
+    re_compile(r"test *\d*"),
+    re_compile(r" *VOLSBB *")
 )
 
 # create a logger for this module
