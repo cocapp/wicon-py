@@ -4,7 +4,6 @@
 git clone https://github.com/cocapp/wicon-py.git
 
 # Create and setup virtual environment
-echo `pwd`
 python3 -m venv `pwd`/wicon-py/.venv  --upgrade-deps
 `pwd`/wicon-py/.venv/bin/python -m pip install -r `pwd`/wicon-py/requirements.txt
 
