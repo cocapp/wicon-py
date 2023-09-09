@@ -61,7 +61,7 @@ This application helps you login to the Wi-Fi networks used for students at VIT 
 1.  Run the following command. You must have `curl` and `python3` in installed and in your system path. You must also have `sudo` privileges.
     
     ```sh
-    curl -s https://raw.githubusercontent.com/cocapp/wicon-py/master/setup.sh
+    curl -s https://raw.githubusercontent.com/cocapp/wicon-py/master/setup.sh | bash
     ```
 
     When prompted, enter a sudo password. This is required to install WiCon in the network manager.
