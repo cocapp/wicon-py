@@ -60,10 +60,10 @@ This application helps you login to the Wi-Fi networks used for students at VIT 
 ## [FOR DEBIAN-LIKE] Steps to run:
 1.  Run the following command. You must have `curl` and `python3` in installed and in your system path. You must also have `sudo` privileges.
     
-        ```sh
-        curl -s https://raw.githubusercontent.com/cocapp/wicon-py/master/setup.sh
-        ```
+    ```sh
+    curl -s https://raw.githubusercontent.com/cocapp/wicon-py/master/setup.sh
+    ```
 
-        When prompted, enter a sudo password. This is required to install WiCon in the network manager.
+    When prompted, enter a sudo password. This is required to install WiCon in the network manager.
 
 2.  When prompted, enter your VIT Wi-Fi credentials. These will be stored in your home directory in a file called `.wicon`. You may later edit this file to change your credentials, or reuse the `addcreds` command.
