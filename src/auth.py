@@ -9,7 +9,6 @@ from http.client import OK
 from logging import getLogger
 from os import popen
 from platform import system as get_os_name
-from re import compile as re_compile
 from re import match as re_match
 
 from bs4 import BeautifulSoup
@@ -24,10 +23,10 @@ HTML_PARSER = 'html.parser'
 
 # Regex for SSIDs at VIT
 SSID_REGEX = (
-    re_compile(r"VIT *2\.4 *G? *\d*"),
-    re_compile(r"VIT *5 *G? *\d*"),
-    re_compile(r"test *\d*"),
-    re_compile(r" *VOLSBB *")
+    r"VIT *2\.4 *G? *\d*",
+    r"VIT *5 *G? *\d*",
+    r"test *\d*",
+    r" *VOLSBB *"
 )
 
 # create a logger for this module
@@ -81,7 +80,7 @@ def check_ssid(ssid: str) -> bool:
     - return True if connected to a VIT network, False otherwise"""
 
     return any(map(
-        lambda regex: regex.match(ssid),
+        lambda regex: re_match(regex, ssid),
         SSID_REGEX
     ))
 
