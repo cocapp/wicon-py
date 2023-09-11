@@ -116,8 +116,9 @@ def parse_login_response(html: bytes) -> str:
             return 'not-on-vit'
 
         # check error elements if we get back a generic title
-        elif clean_title == "volswifi authentication":
+        elif clean_title == "volswifi authentication" or clean_title == "pronto authentication":
             error = soup.find('td', {'class': "errorText10"}).text.strip().lower()  # type: ignore
+            print(error)
 
             standard_errors = {
                 r"sorry, please check your username and password and try again\..*": 'password-failure',
