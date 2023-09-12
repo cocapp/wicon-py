@@ -11,7 +11,7 @@ echo "Checking system requirements..."
 PYTHON3_VERSION=`python3 -c 'import sys; print(sys.version_info[1])'`
 
 if [ $PYTHON3_VERSION -lt 9 ]; then
-    echo "Python 3.9 or higher is required"
+    echo "You have `python3 -V` but Python 3.9 or higher is required"
     exit 1
 fi
 
