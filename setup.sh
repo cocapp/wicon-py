@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Make sure user is on a VIT Wi-Fi network
+echo "Please make sure you are connected to a VIT Wi-Fi network, and logged in."
+echo "Press enter to continue once you are connected."
+read -r _
+
 echo "Checking system requirements..."
 
 # Check that the user has at least Python 3.9
