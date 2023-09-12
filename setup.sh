@@ -80,11 +80,9 @@ echo "You may be prompted for your VIT Wi-Fi username and password."
 # This will be done using a command built into WiCon
 # WiCon will return 0 if successful
 # Continue until WiCon returns 0
-while true; do
-    `pwd`/wicon-py/.venv/bin/python `pwd`/wicon-py/login_cli.py addcreds
-    if [ $? -eq 0 ]; then
-        break
-    fi
+while ! `pwd`/wicon-py/.venv/bin/python `pwd`/wicon-py/login_cli.py addcreds; do
+    echo ""
+    echo "Please try again."
 done
 
 echo "Setup complete!"
