@@ -212,12 +212,24 @@ def define_and_read_args(arguments: list[str]) -> ArgNamespace:
         type=str,
         help="Your VIT Wi-Fi password"
     )
+    connect_parser.add_argument(
+        '-n',
+        '--notify',
+        action='store_true',
+        help="Notify the user of the status."
+    )
 
     disconnect_parser = functions.add_parser(
         'logout',
         help="Logout of the Wi-Fi network."
     )
     disconnect_parser.set_defaults(func=disconnect)
+    disconnect_parser.add_argument(
+        '-n',
+        '--notify',
+        action='store_true',
+        help="Notify the user of the status."
+    )
 
     add_credentials = functions.add_parser(
         'addcreds',
@@ -383,7 +395,8 @@ def main(arguments: list[str]) -> int:
                 default_notification_application_name="Wi-Con"
             )
 
-            notification.send(block=False)
+            if parsed_namespace.notify:
+                notification.send(block=False)
 
         logger.info(status_message)
 

@@ -80,13 +80,13 @@ echo "Creating login and logout scripts..."
 touch /tmp/wicon-py-login
 echo "#!/bin/sh" >> /tmp/wicon-py-login
 echo "if [ \"\$2\" = \"up\" ]; then" >> /tmp/wicon-py-login
-echo "su $USER -c \"`pwd`/wicon-py/.venv/bin/python `pwd`/wicon-py/login_cli.py login\"" >> /tmp/wicon-py-login
+echo "su $USER -c \"`pwd`/wicon-py/.venv/bin/python `pwd`/wicon-py/login_cli.py login -n\"" >> /tmp/wicon-py-login
 echo "fi" >> /tmp/wicon-py-login
 
 # Create logout binary
 touch /tmp/wicon-py-logout
 echo "#!/bin/sh" >> /tmp/wicon-py-logout
-echo "su $USER -c \"`pwd`/wicon-py/.venv/bin/python `pwd`/wicon-py/login_cli.py logout\"" >> /tmp/wicon-py-logout
+echo "su $USER -c \"`pwd`/wicon-py/.venv/bin/python `pwd`/wicon-py/login_cli.py logout -n\"" >> /tmp/wicon-py-logout
 
 echo ""
 echo "Setting up login and logout scripts to run on network change..."
