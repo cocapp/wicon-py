@@ -275,7 +275,16 @@ def connect(parsed_arguments: ArgNamespace) -> str:
     if not (('register-number' in credentials) and ('password' in credentials)):
         logger.warning("Possibly missing credentials.")
 
-    return src.auth.login(credentials)
+    login_response_code = src.auth.login(credentials)
+
+    if login_response_code == 'login-success':
+        print(f"{Fore.GREEN}{Style.BRIGHT}Logged in successfully.{Style.RESET_ALL}")
+    elif login_response_code == 'session-exists':
+        print(f"{Fore.YELLOW}{Style.BRIGHT}Already logged in.{Style.RESET_ALL}")
+    else:
+        print(f"{Fore.RED}{Style.BRIGHT}Failed to login.{Style.RESET_ALL}")
+
+    return login_response_code
 
 
 def disconnect(parsed_arguments: ArgNamespace) -> str:
@@ -289,7 +298,14 @@ def disconnect(parsed_arguments: ArgNamespace) -> str:
     
     logger.info("Attempting to logout.")
 
-    return src.auth.logout()
+    logout_response_code = src.auth.logout()
+
+    if logout_response_code == 'logout-success':
+        print(f"{Fore.GREEN}{Style.BRIGHT}Logged out successfully.{Style.RESET_ALL}")
+    else:
+        print(f"{Fore.RED}{Style.BRIGHT}Failed to logout.{Style.RESET_ALL}")
+
+    return logout_response_code
 
 
 def addcreds(parsed_arguments: ArgNamespace) -> str:
