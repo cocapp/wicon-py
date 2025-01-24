@@ -27,7 +27,7 @@ SSID_REGEX = (
     r"VIT *5 *G? *\d*",
     r"test *\d*",
     r" *VOLSBB *",
-    r"[a-zA-Z][xX]?-VIT*"
+    r"[a-zA-Z](-ANX)?-VIT*"
 )
 
 # create a logger for this module
