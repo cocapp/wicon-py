@@ -37,34 +37,33 @@ def get_ssid() -> str:
     """get the SSID of the network the user is connected to
     - detect the operating system
     - use the appropriate shell command to get the SSID
-    - return the SSID"""
+    - return the SSID or a status message if not connected"""
 
     os_name = get_os_name()
     logger.debug(f"Detected OS: {os_name}")
 
     if os_name == 'Windows':
         output = popen("netsh wlan show interfaces").read()
-        status = output.split("State")[1].split(":")[1].split('\n')[0].strip()
+        if "State" not in output or "SSID" not in output:
+            return 'not-connected'
 
+        status = output.split("State")[1].split(":")[1].split('\n')[0].strip()
         if status != "connected":
-            raise ConnectionError("Not connected to any Wi-Fi network.")
+            return 'not-connected'
 
         ssid = output.split("SSID")[1].split(":")[1].split('\n')[0].strip()
 
     elif os_name == 'Linux':
         output = popen("iwgetid").read()
-        status = output.split(" ")[0].strip()
-
         if "SSID" not in output:
-            raise ConnectionError("Not connected to any Wi-Fi network.")
+            return 'not-connected'
 
         ssid = output.split('"')[1]
 
     elif os_name == 'Darwin':
         output = popen("ipconfig getsummary en0 | grep -e \" *SSID\"").read()
-
         if "SSID" not in output:
-            raise ConnectionError("Not connected to any Wi-Fi network.")
+            return 'not-connected'
 
         ssid = output.split("SSID :")[1].strip()
 

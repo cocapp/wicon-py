@@ -76,6 +76,10 @@ DEFAULT_USER_NOTIFICATION_SCHEME: dict[str, dict[str, str | bool]] = {
         'notification': False,
         'error': False
     },
+    'not-connected': {
+        'notification': False,
+        'error': False
+    },
     'credadd-success': {
         'notification': False,
         'error': False
@@ -253,7 +257,11 @@ def connect(parsed_arguments: ArgNamespace) -> str:
     - send the request
     - return the response/status"""
 
-    if not src.auth.check_ssid(src.auth.get_ssid()):
+    ssid = src.auth.get_ssid()
+    if ssid == 'not-connected':
+        return 'not-connected'
+
+    if not src.auth.check_ssid(ssid):
         return 'not-on-vit'
 
     logger.info("Attempting to login.")
@@ -293,9 +301,13 @@ def disconnect(parsed_arguments: ArgNamespace) -> str:
     - send the request
     - return the response/status"""
 
-    if not src.auth.check_ssid(src.auth.get_ssid()):
+    ssid = src.auth.get_ssid()
+    if ssid == 'not-connected':
+        return 'not-connected'
+
+    if not src.auth.check_ssid(ssid):
         return 'not-on-vit'
-    
+
     logger.info("Attempting to logout.")
 
     logout_response_code = src.auth.logout()
