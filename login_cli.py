@@ -119,7 +119,7 @@ def load_settings(settings_file_path: Path, logger: Logger) -> dict[str, dict[st
                     USER_SETTINGS = loads(settings)
 
                 except JSONDecodeError as e:
-                    logger.warn(settings)
+                    logger.warning(settings)
                     raise ValueError("Invalid settings JSON.") from e
 
                 else:
