@@ -105,7 +105,7 @@ def parse_login_response(html: bytes) -> str:
     if title := soup.find('title'):
         clean_title = title.text.strip().lower()
 
-        if clean_title == "successful pronto authentication":
+        if clean_title == "wifi access granted":
             return 'login-success'
 
         elif clean_title == "active session exist":
